@@ -1,0 +1,126 @@
+#!/usr/bin/ruby                                                                              
+include Math
+
+# Error handling #
+ac = 0
+
+until ARGV[ac] == nil
+  if ARGV[0] != "-h" && ARGV[ac] != "0" && ARGV[ac].to_i == 0
+    puts "Invalid arguments"
+    exit 84
+  end
+  ac += 1
+end
+
+if ac != 1
+  puts "Invalid arguments"
+  exit 84
+end
+
+if ac == 1
+  if ARGV[0] == "-h"
+    puts "USAGE"
+    puts "\t\t./110borwein n"
+    puts "\n"
+    puts "DESCRIPTION"
+    puts "\t\tn\tconstant defining the integral to be computed"
+    exit 0
+  end
+end
+
+if ARGV[0].to_i < 0
+  puts "Negative Args !"
+  exit 84
+end
+
+# Globals #
+$a = 0
+$b = 5000
+$n = 10000
+$h = 0.5
+$d = (Math::PI) / 2
+
+
+# Produit #
+def prod(x, arg)
+  res = 1
+  j = 0
+  if x != 0
+    while j <= arg
+      res *= (Math.sin(x / ((2 * j) + 1)) / (x / ((2 * j) + 1)))
+      j += 1
+    end
+  end
+  return res
+end
+
+# Regtangle #
+def rect(arg)
+  res = 0
+  i = 0
+  while i <= $n - 1
+    res = res + prod((($a + i) * $h), arg)
+    i += 1
+  end
+  res = res * $h
+  printf("Rectangles:\nI%d = %.10f\n", arg, res)
+  if res - $d > -0.0000000001 && res - $d < 0
+    print("diff = 0.0000000000\n")
+  else
+    printf("diff = %.10f\n", res - $d)
+  end
+end
+
+# Trapez #
+def trapez(arg)
+  res = 0
+  i = 1
+  while i < $n
+    res = res + prod((($a + i) * $h), arg)
+    i += 1
+  end
+  res = res * 2
+  res = res + prod($a, arg) + prod($b, arg)
+  res = res * ($h / 2)
+  puts "\nTrapezoids:"
+  printf("I%d = %.10f\n", arg, res)
+  if res - $d > -0.0000000001 && res - $d < 0
+    print("diff = 0.0000000000\n")
+  else
+    printf("diff = %.10f\n", res - $d)
+  end
+end
+
+# Simpson #
+def simps(arg)
+  res = 0
+  res_bis = 0
+  i = 0
+  while i <= $n - 1
+    res = res + prod((($a + i) * $h + ($h / 2)), arg)
+    i += 1
+  end
+  res = res * 4
+  i = 1
+  while i <= $n - 1
+    res_bis = res_bis + prod((($a + i) * $h), arg)
+    i += 1
+  end
+  res_bis = res_bis * 2
+  res = res + res_bis
+  res = res + prod($a, arg) + prod($b, arg)
+  res = res * ($h / 6)
+  puts "\nSimpson:"
+  printf("I%d = %.10f\n", arg, res)
+  if res - $d > -0.0000000001 && res - $d < 0
+    print("diff = 0.0000000000\n")
+  else
+    printf("diff = %.10f\n", res - $d)
+  end
+end
+
+# Main #
+
+rect(ARGV[0].to_i)
+trapez(ARGV[0].to_i)
+simps(ARGV[0].to_i)
